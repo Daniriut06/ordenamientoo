@@ -168,28 +168,22 @@ public class ServicioDocumento {
     }
 
     // Agrega este nuevo método para búsqueda parcial
-    public static List<Documento> buscarParcial(String texto) {
-        List<Documento> resultados = new ArrayList<>();
-        texto = texto.toLowerCase().trim();
-
-        for (Documento doc : documentos) {
-            if (doc.getApellido1().toLowerCase().contains(texto) ||
-                    doc.getApellido2().toLowerCase().contains(texto) ||
-                    doc.getNombre().toLowerCase().contains(texto) ||
-                    doc.getNombreCompleto().toLowerCase().contains(texto)) {
-                resultados.add(doc);
-            }
-        }
-        return resultados;
-    }
 
     // nuevo
+
+    private static boolean contieneTexto(Documento doc, String texto) {
+        texto = texto.toLowerCase();
+        return doc.getApellido1().toLowerCase().contains(texto) ||
+                doc.getApellido2().toLowerCase().contains(texto) ||
+                doc.getNombre().toLowerCase().contains(texto) ||
+                doc.getNombreCompleto().toLowerCase().contains(texto);
+    }
 
     public static int buscarCoincidencia(String texto) {
         if (documentos.isEmpty())
             return -1;
 
-        // Forzar ordenamiento por nombre completo si no está ordenado
+        // Asegurar que la lista esté ordenada por nombre completo
         if (!estaOrdenadaPorNombreCompleto()) {
             ordenarRapido(0); // Criterio 0 = Nombre completo
         }
@@ -201,47 +195,27 @@ public class ServicioDocumento {
 
     private static int busquedaBinariaRecursiva(String texto, int inicio, int fin) {
         if (inicio > fin) {
-            return -1; // No encontrado
+            return -1;
         }
 
         int medio = inicio + (fin - inicio) / 2;
         Documento doc = documentos.get(medio);
+        String nombreCompleto = doc.getNombreCompleto().toLowerCase();
 
-        // Verificación mejorada de coincidencias
-        boolean coincide = doc.getApellido1().toLowerCase().startsWith(texto) ||
-                doc.getApellido2().toLowerCase().startsWith(texto) ||
-                doc.getNombre().toLowerCase().startsWith(texto) ||
-                doc.getNombreCompleto().toLowerCase().contains(texto);
-
-        if (coincide) {
-            // Buscar la primera ocurrencia hacia atrás
-            int primera = medio;
-            while (primera > inicio) {
-                Documento anterior = documentos.get(primera - 1);
-                if (anterior.getApellido1().toLowerCase().startsWith(texto) ||
-                        anterior.getApellido2().toLowerCase().startsWith(texto) ||
-                        anterior.getNombre().toLowerCase().startsWith(texto) ||
-                        anterior.getNombreCompleto().toLowerCase().contains(texto)) {
-                    primera--;
-                } else {
-                    break;
-                }
-            }
-            return primera;
+        // Priorizar coincidencias exactas en apellidos/nombre
+        if (doc.getApellido1().toLowerCase().equals(texto) ||
+                doc.getApellido2().toLowerCase().equals(texto) ||
+                doc.getNombre().toLowerCase().equals(texto)) {
+            return medio;
         }
 
-        // Lógica mejorada de división de búsqueda
-        String textoBusqueda = texto.toLowerCase();
-        String comparacion1 = doc.getApellido1().toLowerCase();
-        String comparacion2 = doc.getApellido2().toLowerCase();
-        String comparacion3 = doc.getNombre().toLowerCase();
-        String comparacion4 = doc.getNombreCompleto().toLowerCase();
+        if (nombreCompleto.contains(texto)) {
+            return medio;
+        }
 
-        // Decide qué mitad buscar basado en múltiples campos
-        if (textoBusqueda.compareTo(comparacion1) < 0 ||
-                textoBusqueda.compareTo(comparacion2) < 0 ||
-                textoBusqueda.compareTo(comparacion3) < 0 ||
-                textoBusqueda.compareTo(comparacion4) < 0) {
+        // Comparar alfabéticamente
+        int comparacion = nombreCompleto.compareTo(texto);
+        if (comparacion > 0) {
             return busquedaBinariaRecursiva(texto, inicio, medio - 1);
         } else {
             return busquedaBinariaRecursiva(texto, medio + 1, fin);
@@ -258,37 +232,14 @@ public class ServicioDocumento {
         coincidencias = new ArrayList<>();
         texto = texto.toLowerCase();
 
-        // Primera búsqueda binaria para encontrar una coincidencia inicial
+        // Búsqueda binaria inicial
         int primeraCoincidencia = buscarCoincidencia(texto);
 
         if (primeraCoincidencia != -1) {
-            // Buscar hacia atrás desde la primera coincidencia
-            int i = primeraCoincidencia;
-            while (i >= 0) {
-                Documento doc = documentos.get(i);
-                if (doc.getNombre().toLowerCase().contains(texto) ||
-                        doc.getApellido1().toLowerCase().contains(texto) ||
-                        doc.getApellido2().toLowerCase().contains(texto) ||
-                        doc.getNombreCompleto().toLowerCase().contains(texto)) {
-                    coincidencias.add(0, i); // Insertar al inicio para mantener orden
-                    i--;
-                } else {
-                    break;
-                }
-            }
-
-            // Buscar hacia adelante desde la primera coincidencia
-            i = primeraCoincidencia + 1;
-            while (i < documentos.size()) {
-                Documento doc = documentos.get(i);
-                if (doc.getNombre().toLowerCase().contains(texto) ||
-                        doc.getApellido1().toLowerCase().contains(texto) ||
-                        doc.getApellido2().toLowerCase().contains(texto) ||
-                        doc.getNombreCompleto().toLowerCase().contains(texto)) {
+            // Buscar TODAS las coincidencias desde el inicio hasta el final
+            for (int i = 0; i < documentos.size(); i++) {
+                if (contieneTexto(documentos.get(i), texto)) {
                     coincidencias.add(i);
-                    i++;
-                } else {
-                    break;
                 }
             }
         }
@@ -301,12 +252,7 @@ public class ServicioDocumento {
         if (coincidencias == null || coincidencias.isEmpty() || posicionActual == -1) {
             return -1;
         }
-
-        posicionActual++;
-        if (posicionActual >= coincidencias.size()) {
-            posicionActual = 0; // Vuelve al inicio si llega al final
-        }
-
+        posicionActual = (posicionActual + 1) % coincidencias.size(); // Navegación circular
         return coincidencias.get(posicionActual);
     }
 
@@ -314,12 +260,7 @@ public class ServicioDocumento {
         if (coincidencias == null || coincidencias.isEmpty() || posicionActual == -1) {
             return -1;
         }
-
-        posicionActual--;
-        if (posicionActual < 0) {
-            posicionActual = coincidencias.size() - 1; // Va al final si estaba al inicio
-        }
-
+        posicionActual = (posicionActual - 1 + coincidencias.size()) % coincidencias.size();
         return coincidencias.get(posicionActual);
     }
 }
