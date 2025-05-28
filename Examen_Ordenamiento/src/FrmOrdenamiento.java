@@ -153,27 +153,28 @@ public class FrmOrdenamiento extends JFrame {
         }
     }
 
-    private List<Integer> coincidencias; // Declara como atributo de la clase
-    private int posicionCoincidencia; // Para rastrear la posición actual
+    /*
+     * private List<Integer> coincidencias; // Declara como atributo de la clase
+     * private int posicionCoincidencia; // Para rastrear la posición actual
+     */
 
     private void btnBuscar(ActionEvent evt) {
-    String texto = txtBuscar.getText().trim();
-    if (!texto.isEmpty()) {
-        ServicioDocumento.buscarTodasCoincidencias(texto);
-        int indice = ServicioDocumento.buscarCoincidencia(texto); // Obtiene la primera coincidencia
+        String texto = txtBuscar.getText().trim();
+        if (!texto.isEmpty()) {
+            ServicioDocumento.buscarTodasCoincidencias(texto);
+            mostrarSiguienteCoincidencia();
+        }
+    }
+
+    private void mostrarSiguienteCoincidencia() {
+        int indice = ServicioDocumento.siguienteCoincidencia();
         if (indice != -1) {
             tblDocumentos.setRowSelectionInterval(indice, indice);
             tblDocumentos.scrollRectToVisible(tblDocumentos.getCellRect(indice, 0, true));
         } else {
-            JOptionPane.showMessageDialog(this, "No se encontró", "Búsqueda", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "No se encontraron coincidencias", "Búsqueda",
+                    JOptionPane.INFORMATION_MESSAGE);
         }
-    }
-}
-
-    private void mostrarCoincidencia(int pos) {
-        int indice = coincidencias.get(pos);
-        tblDocumentos.setRowSelectionInterval(indice, indice);
-        tblDocumentos.scrollRectToVisible(tblDocumentos.getCellRect(indice, 0, true));
     }
 
     private void btnAnteriorClick() {
