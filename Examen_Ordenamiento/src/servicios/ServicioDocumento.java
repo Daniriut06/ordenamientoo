@@ -173,10 +173,10 @@ public class ServicioDocumento {
 
     private static boolean contieneTexto(Documento doc, String texto) {
         texto = texto.toLowerCase();
-        return doc.getApellido1().toLowerCase().contains(texto) ||
-                doc.getApellido2().toLowerCase().contains(texto) ||
-                doc.getNombre().toLowerCase().contains(texto) ||
-                doc.getNombreCompleto().toLowerCase().contains(texto);
+        return doc.getApellido1().toLowerCase().startsWith(texto) ||
+                doc.getApellido2().toLowerCase().startsWith(texto) ||
+                doc.getNombre().toLowerCase().startsWith(texto) ||
+                doc.getNombreCompleto().toLowerCase().startsWith(texto);
     }
 
     public static int buscarCoincidencia(String texto) {
@@ -200,20 +200,16 @@ public class ServicioDocumento {
 
         int medio = inicio + (fin - inicio) / 2;
         Documento doc = documentos.get(medio);
+
+        // Verificar si algún campo comienza con el texto
+        if (doc.getApellido1().toLowerCase().startsWith(texto) ||
+                doc.getApellido2().toLowerCase().startsWith(texto) ||
+                doc.getNombre().toLowerCase().startsWith(texto)) {
+            return medio;
+        }
+
+        // Comparar alfabéticamente para decidir la dirección
         String nombreCompleto = doc.getNombreCompleto().toLowerCase();
-
-        // Priorizar coincidencias exactas en apellidos/nombre
-        if (doc.getApellido1().toLowerCase().equals(texto) ||
-                doc.getApellido2().toLowerCase().equals(texto) ||
-                doc.getNombre().toLowerCase().equals(texto)) {
-            return medio;
-        }
-
-        if (nombreCompleto.contains(texto)) {
-            return medio;
-        }
-
-        // Comparar alfabéticamente
         int comparacion = nombreCompleto.compareTo(texto);
         if (comparacion > 0) {
             return busquedaBinariaRecursiva(texto, inicio, medio - 1);
