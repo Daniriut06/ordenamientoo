@@ -156,21 +156,48 @@ public class FrmOrdenamiento extends JFrame {
     /*
      * private List<Integer> coincidencias; // Declara como atributo de la clase
      * private int posicionCoincidencia; // Para rastrear la posición actual
-     */
+     
 
     private void btnBuscar(ActionEvent evt) {
         String texto = txtBuscar.getText().trim();
+
         if (!texto.isEmpty()) {
+            Util.iniciarCronometro();
             ServicioDocumento.buscarTodasCoincidencias(texto);
+            txtTiempo.setText(Util.getTextoTiempoCronometro());
             mostrarSiguienteCoincidencia();
         }
+    }*/
+
+    private void btnBuscar(ActionEvent evt) {
+    String texto = txtBuscar.getText().trim();
+
+    if (!texto.isEmpty()) {
+        // Verificar si la lista está ordenada por nombre completo (criterio 0)
+        if (!ServicioDocumento.estaOrdenadaPorNombreCompleto()) {
+            JOptionPane.showMessageDialog(
+                this, 
+                "La lista no está ordenada. Por favor, ordénala primero.", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE
+            );
+            return; // Detener la búsqueda si no está ordenada
+        }
+
+        Util.iniciarCronometro();
+        ServicioDocumento.buscarTodasCoincidencias(texto);
+        txtTiempo.setText(Util.getTextoTiempoCronometro());
+        mostrarSiguienteCoincidencia();
     }
+}
 
     private void mostrarSiguienteCoincidencia() {
         int indice = ServicioDocumento.siguienteCoincidencia();
         if (indice != -1) {
+            Util.iniciarCronometro();
             tblDocumentos.setRowSelectionInterval(indice, indice);
             tblDocumentos.scrollRectToVisible(tblDocumentos.getCellRect(indice, 0, true));
+            txtTiempo.setText(Util.getTextoTiempoCronometro());
         } else {
             JOptionPane.showMessageDialog(this, "No se encontraron coincidencias", "Búsqueda",
                     JOptionPane.INFORMATION_MESSAGE);
@@ -180,8 +207,10 @@ public class FrmOrdenamiento extends JFrame {
     private void btnAnteriorClick() {
         int indice = ServicioDocumento.anteriorCoincidencia();
         if (indice != -1) {
+            Util.iniciarCronometro();
             tblDocumentos.setRowSelectionInterval(indice, indice);
             tblDocumentos.scrollRectToVisible(tblDocumentos.getCellRect(indice, 0, true));
+            txtTiempo.setText(Util.getTextoTiempoCronometro());
         } else {
             JOptionPane.showMessageDialog(this, "No hay más coincidencias", "Búsqueda",
                     JOptionPane.INFORMATION_MESSAGE);

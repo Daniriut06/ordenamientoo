@@ -62,7 +62,7 @@ public class ServicioDocumento {
     }
 
     // nuevo
-    private static boolean estaOrdenadaPorNombreCompleto() {
+    public static boolean estaOrdenadaPorNombreCompleto() {
         for (int i = 0; i < documentos.size() - 1; i++) {
             if (documentos.get(i).getNombreCompleto().compareTo(documentos.get(i + 1).getNombreCompleto()) > 0) {
                 return false;
@@ -259,4 +259,6 @@ public class ServicioDocumento {
         posicionActual = (posicionActual - 1 + coincidencias.size()) % coincidencias.size();
         return coincidencias.get(posicionActual);
     }
+
+   
 }
