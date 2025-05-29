@@ -147,11 +147,9 @@ public class ServicioDocumento {
         ordenarInsercionRecursivo(posicion - 1, criterio);
 
         var documentoActual = documentos.get(posicion);
-        // System.out.println(documentoActual.getNombreCompleto());
-        // mover los documentos mayores que el actual
         int j = posicion - 1;
         while (j >= 0 && esMayor(documentos.get(j), documentoActual, criterio)) {
-            // System.out.println(documentos.get(j));
+
             documentos.set(j + 1, documentos.get(j));
             j--;
         }
@@ -167,7 +165,6 @@ public class ServicioDocumento {
         return documentos;
     }
 
-    // Agrega este nuevo método para búsqueda parcial
 
     // nuevo
 
@@ -183,7 +180,7 @@ public class ServicioDocumento {
         if (documentos.isEmpty())
             return -1;
 
-        // Asegurar que la lista esté ordenada por nombre completo
+
         if (!estaOrdenadaPorNombreCompleto()) {
             ordenarRapido(0); // Criterio 0 = Nombre completo
         }
@@ -221,7 +218,7 @@ public class ServicioDocumento {
     private static List<Integer> coincidencias; // Guarda los índices de las coincidencias
     private static int posicionActual; // Índice actual en la lista de coincidencias
 
-    // Método para buscar TODAS las coincidencias (no solo la primera)
+    
 
     // nuevo
     public static void buscarTodasCoincidencias(String texto) {
@@ -243,7 +240,7 @@ public class ServicioDocumento {
         posicionActual = coincidencias.isEmpty() ? -1 : 0;
     }
 
-    // Método para obtener la siguiente coincidencia
+    // nuevo
     public static int siguienteCoincidencia() {
         if (coincidencias == null || coincidencias.isEmpty() || posicionActual == -1) {
             return -1;

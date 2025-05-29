@@ -153,21 +153,6 @@ public class FrmOrdenamiento extends JFrame {
         }
     }
 
-    /*
-     * private List<Integer> coincidencias; // Declara como atributo de la clase
-     * private int posicionCoincidencia; // Para rastrear la posición actual
-     
-
-    private void btnBuscar(ActionEvent evt) {
-        String texto = txtBuscar.getText().trim();
-
-        if (!texto.isEmpty()) {
-            Util.iniciarCronometro();
-            ServicioDocumento.buscarTodasCoincidencias(texto);
-            txtTiempo.setText(Util.getTextoTiempoCronometro());
-            mostrarSiguienteCoincidencia();
-        }
-    }*/
 
     private void btnBuscar(ActionEvent evt) {
     String texto = txtBuscar.getText().trim();
@@ -220,8 +205,10 @@ public class FrmOrdenamiento extends JFrame {
     private void btnSiguienteClick() {
         int indice = ServicioDocumento.siguienteCoincidencia();
         if (indice != -1) {
+            Util.iniciarCronometro();
             tblDocumentos.setRowSelectionInterval(indice, indice);
             tblDocumentos.scrollRectToVisible(tblDocumentos.getCellRect(indice, 0, true));
+            txtTiempo.setText(Util.getTextoTiempoCronometro());
         } else {
             JOptionPane.showMessageDialog(this, "No hay más coincidencias", "Búsqueda",
                     JOptionPane.INFORMATION_MESSAGE);
